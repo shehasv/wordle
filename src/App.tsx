@@ -23,7 +23,7 @@ function App() {
 
   return (
     <div>
-      <Playground />
+      <Playground solution={solution} />
       {solution}
     </div>
   );

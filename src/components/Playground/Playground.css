@@ -2,7 +2,7 @@
   display: flex;
   gap: 0.5rem;
 }
-.word-column {
+.word-letter {
   width: 50px;
   height: 50px;
   border: 2px solid black;
@@ -11,4 +11,13 @@
   justify-content: center;
   align-items: center;
   font-size: 22px;
+}
+.correct {
+  background-color: green;
+}
+.close {
+  background-color: yellow;
+}
+.incorrect {
+  background-color: red;
 }
