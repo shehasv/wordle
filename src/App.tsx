@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import './App.css';
+import { Link, Outlet, Route, Routes } from 'react-router-dom';
 import Playground from './components/Playground/Playground';
 
 const WORDS_API_URL = 'https://api.frontendexpert.io/api/fe/wordle-words';
@@ -26,6 +27,11 @@ function App() {
 
   return (
     <div>
+      {/* <Link to="/play"><button>Play</button></Link>
+      <Routes>
+        <Route path="play" element={<Playground solution={solution} />} />
+      </Routes>
+      <Outlet /> */}
       <Playground solution={solution} />
     </div>
   );
