@@ -10,6 +10,21 @@ const Playground:React.FC<Playground> = ({ solution }) => {
     Array(6).fill(Array(5).fill(''))
   );
   const [numberOfTries, setNumberOfTries] = useState(0);
+  const [isGameOver, setIsGameOver] = useState(false)
+
+
+  const startGame = () => {
+    setIsGameOver(false)
+    setNumberOfTries(0)
+    setwordInputs(Array(6).fill(Array(5).fill('')))
+    wordInputs.forEach((word,rowIndex)=>{
+      word.forEach((letter:string,cellIndex:number)=>{
+        const elem = document.getElementById('cell' + rowIndex + cellIndex);
+        elem?.classList.remove(...elem.classList)
+        elem?.classList.add('word-letter')
+      })
+    })
+  }
 
   const updateCell = (rowIndex: number, colIndex: number, newValue: string) => {
     setwordInputs((prevWordInputs) => {
@@ -68,6 +83,11 @@ const Playground:React.FC<Playground> = ({ solution }) => {
   };
 
   useEffect(() => {
+
+    if(numberOfTries == 6){
+      setIsGameOver(true)
+    }
+
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [wordInputs, numberOfTries]);
@@ -84,6 +104,13 @@ const Playground:React.FC<Playground> = ({ solution }) => {
           ))}
         </div>
       ))}
+      {
+        isGameOver && 
+        <div>
+          <h2>Game over!!</h2>
+          <button onClick={() => startGame()}>Play again</button>
+        </div>
+      }
     </div>
   );
 };
