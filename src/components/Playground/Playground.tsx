@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Playground.css';
 
-const Playground = ({ solution }) => {
+interface Playground {
+  solution: string
+}
+
+const Playground:React.FC<Playground> = ({ solution }) => {
   const [wordInputs, setwordInputs] = useState(
     Array(6).fill(Array(5).fill(''))
   );
