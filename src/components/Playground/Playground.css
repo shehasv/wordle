@@ -11,6 +11,7 @@
   justify-content: center;
   align-items: center;
   font-size: 22px;
+  border-radius: 8px;
 }
 .correct {
   background-color: green;
@@ -19,5 +20,5 @@
   background-color: yellow;
 }
 .incorrect {
-  background-color: red;
+  background-color: grey;
 }
