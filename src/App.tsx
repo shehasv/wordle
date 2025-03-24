@@ -26,13 +26,18 @@ function App() {
   },[wordsList])
 
   return (
-    <div>
+    <div className='wordle-main-container'>
       {/* <Link to="/play"><button>Play</button></Link>
       <Routes>
         <Route path="play" element={<Playground solution={solution} />} />
       </Routes>
       <Outlet /> */}
-      <Playground solution={solution} />
+      <div className='header-container'>
+        <img src='src/assets/header.png' />
+      </div>
+      <div className='body-container'>
+        <Playground solution={solution} />
+      </div>
     </div>
   );
 }
