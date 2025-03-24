@@ -1,33 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Playground.css';
 
+
 interface Playground {
-  solution: string
+  solution: string;
 }
 
+
 const Playground:React.FC<Playground> = ({ solution }) => {
-  const [wordInputs, setwordInputs] = useState(
-    Array(6).fill(Array(5).fill(''))
+  const [wordInputs, setWordInputs] = useState(
+    Array(6).fill(null).map(() => Array(5).fill(''))
   );
+  
   const [numberOfTries, setNumberOfTries] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(false)
+  const [isGameOver, setIsGameOver] = useState(false);
 
 
-  const startGame = () => {
-    setIsGameOver(false)
-    setNumberOfTries(0)
-    setwordInputs(Array(6).fill(Array(5).fill('')))
-    wordInputs.forEach((word,rowIndex)=>{
-      word.forEach((letter:string,cellIndex:number)=>{
-        const elem = document.getElementById('cell' + rowIndex + cellIndex);
-        elem?.classList.remove(...elem.classList)
-        elem?.classList.add('word-letter')
+  const startNewGame = () => {
+    setNumberOfTries(0);
+    setWordInputs(Array(6).fill(null).map(() => Array(5).fill('')));
+    wordInputs.forEach((word,rowInd) =>{
+      word.forEach((letter,cellInd)=>{
+        const elem = document.getElementById('cell'+rowInd+cellInd);
+        elem?.classList.remove(...elem.classList);
+        elem?.classList.add('word-letter');
       })
     })
+    setIsGameOver((prev) => !prev)
   }
 
   const updateCell = (rowIndex: number, colIndex: number, newValue: string) => {
-    setwordInputs((prevWordInputs) => {
+    setWordInputs((prevWordInputs) => {
       const newWordInputs = prevWordInputs.map((row) => [...row]);
       newWordInputs[rowIndex][colIndex] = newValue;
       return newWordInputs;
@@ -60,6 +63,7 @@ const Playground:React.FC<Playground> = ({ solution }) => {
   };
 
   const checkGameOver = () => {
+    
     if (wordInputs[numberOfTries].every((item: string) => item)) {
       validateWord();
       setNumberOfTries((prev) => prev + 1);
@@ -83,34 +87,31 @@ const Playground:React.FC<Playground> = ({ solution }) => {
   };
 
   useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
 
     if(numberOfTries == 6){
       setIsGameOver(true)
     }
 
-    document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [wordInputs, numberOfTries]);
 
   return (
     <div>
       {wordInputs.map((row: Array<string>, rowIndex: number) => (
-        <div className="word-row">
+        <div className="word-row" key={rowIndex}>
           {row.map((word: string, letterIndex: number) => (
-            <div className="word-letter" id={'cell' + rowIndex + letterIndex}>
+            <div className="word-letter" id={'cell' + rowIndex + letterIndex} key={`${rowIndex}-${letterIndex}`}>
               {' '}
               {word}{' '}
             </div>
           ))}
         </div>
       ))}
-      {
-        isGameOver && 
-        <div>
+      {isGameOver && <div>
           <h2>Game over!!</h2>
-          <button onClick={() => startGame()}>Play again</button>
-        </div>
-      }
+          <button onClick={() => startNewGame()}>Start new game</button>
+        </div>}
     </div>
   );
 };
