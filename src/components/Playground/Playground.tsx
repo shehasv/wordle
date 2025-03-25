@@ -101,11 +101,11 @@ const Playground = () => {
   };
 
   function onKeyClick(event:any){
-    const isLetter: boolean = /^[a-zA-Z]$/.test(event?.target?.innerHTML);
-    const isEnter: boolean = event?.target?.innerHTML === '✅';
-    const isBackspace: boolean = event?.target?.innerHTML === '🔙';
+    const isLetter: boolean = /^[a-zA-Z]$/.test(event?.target?.innerText);
+    const isEnter: boolean = event?.target?.innerText === '✅';
+    const isBackspace: boolean = event?.target?.innerText === '🔙';
 
-    hanldeKeyClick(isLetter, isEnter, isBackspace, event?.target?.innerHTML)
+    hanldeKeyClick(isLetter, isEnter, isBackspace, event?.target?.innerText)
     event?.preventDefault();
     event?.stopPropagation();
   }

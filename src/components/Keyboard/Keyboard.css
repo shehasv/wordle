@@ -6,25 +6,21 @@
 .row{
     gap: 0.5rem;
 }
-.key{
-    width: 40px;
-    height: 40px;
-    border: 2px solid black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
+
 .key:hover{
     background-color: #D3D3D3;
 }
 
-@media screen and (max-width: 450px) {
-    .key{
+@media screen and (max-width: 700px) {
+    .MuiButton-outlined {
+        min-width: 30px !important;
         width: 30px;
-        height: 30px;
     }
-    .row{
-        max-width: 400px;
+}
+
+@media screen and (max-width: 420px) {
+    .MuiButton-outlined {
+        width: 26px;
+        min-width: 20px !important;
     }
 }
