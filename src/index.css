@@ -16,3 +16,15 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+.d-flex{
+  display: flex;
+}
+
+.justify-content-center{
+  justify-content: center;
+}
+
+.gap-1{
+  gap: 1rem;
+}

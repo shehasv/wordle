@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import './Playground.css';
+import Button from '@mui/material/Button';
+import { Link } from 'react-router-dom';
+
+const WORDS_API_URL = 'https://api.frontendexpert.io/api/fe/wordle-words';
 
 
-interface Playground {
-  solution: string;
-}
-
-
-const Playground:React.FC<Playground> = ({ solution }) => {
+const Playground = () => {
   const [wordInputs, setWordInputs] = useState(
     Array(6).fill(null).map(() => Array(5).fill(''))
   );
@@ -15,6 +14,34 @@ const Playground:React.FC<Playground> = ({ solution }) => {
   const [numberOfTries, setNumberOfTries] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
 
+  const [wordsList, setWords] = useState([]);
+  const [solution, setSolution] = useState('');
+
+  useEffect(() => {
+    fetchWords();
+  }, []);
+
+  useEffect(() => {
+    setSolution(
+      wordsList[Math.floor(Math.random() * (wordsList.length - 0 + 1) + 0)]
+    );
+  },[wordsList])
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+
+    if(numberOfTries == 6){
+      setIsGameOver(true)
+    }
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [wordInputs, numberOfTries]);
+
+  const fetchWords = async () => {
+    const data = await fetch(WORDS_API_URL);
+    const wordsList = await data.json();
+    setWords(wordsList);
+  };
 
   const startNewGame = () => {
     setNumberOfTries(0);
@@ -86,15 +113,7 @@ const Playground:React.FC<Playground> = ({ solution }) => {
     });
   };
 
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-
-    if(numberOfTries == 6){
-      setIsGameOver(true)
-    }
-
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [wordInputs, numberOfTries]);
+  
 
   return (
     <div>
@@ -110,7 +129,10 @@ const Playground:React.FC<Playground> = ({ solution }) => {
       ))}
       {isGameOver && <div>
           <h2>Game over!!</h2>
-          <button onClick={() => startNewGame()}>Start new game</button>
+          <div className='d-flex gap-1 justify-content-center'>
+            <Button variant="outlined" size="medium" onClick={() => startNewGame()}>Start new game</Button>
+            <Link to={"/"}><Button variant="outlined" size="medium">Home</Button></Link>
+          </div>
         </div>}
     </div>
   );
