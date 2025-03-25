@@ -5,7 +5,7 @@ function App() {
   return (
     <div className='wordle-main-container'>
       <div className='header-container'>
-        <img src='public/images/header.png' />
+        <img src='images/header.png' />
       </div>
       <div className='body-container'>
         <Outlet />
