@@ -2,19 +2,16 @@ import { useEffect, useState } from 'react';
 import './Playground.css';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
-
-const WORDS_API_URL = 'https://api.frontendexpert.io/api/fe/wordle-words';
+import { words } from '../../words';
 
 
 const Playground = () => {
   const [wordInputs, setWordInputs] = useState(
     Array(6).fill(null).map(() => Array(5).fill(''))
   );
-  
   const [numberOfTries, setNumberOfTries] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
-
-  const [wordsList, setWords] = useState([]);
+  const [wordsList, setWords] = useState<string[]>([]);
   const [solution, setSolution] = useState('');
 
   useEffect(() => {
@@ -22,9 +19,7 @@ const Playground = () => {
   }, []);
 
   useEffect(() => {
-    setSolution(
-      wordsList[Math.floor(Math.random() * (wordsList.length - 0 + 1) + 0)]
-    );
+    updateSolution();
   },[wordsList])
 
   useEffect(() => {
@@ -37,10 +32,8 @@ const Playground = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [wordInputs, numberOfTries]);
 
-  const fetchWords = async () => {
-    const data = await fetch(WORDS_API_URL);
-    const wordsList = await data.json();
-    setWords(wordsList);
+  const fetchWords = () => {
+    setWords(words);
   };
 
   const startNewGame = () => {
@@ -53,7 +46,14 @@ const Playground = () => {
         elem?.classList.add('word-letter');
       })
     })
-    setIsGameOver((prev) => !prev)
+    setIsGameOver((prev) => !prev);
+    updateSolution();
+  }
+
+  const updateSolution = () => {
+    setSolution(
+      wordsList[Math.floor(Math.random() * (wordsList.length - 0 + 1) + 0)]?.toUpperCase()
+    );
   }
 
   const updateCell = (rowIndex: number, colIndex: number, newValue: string) => {
@@ -117,7 +117,8 @@ const Playground = () => {
 
   return (
     <div>
-      {wordInputs.map((row: Array<string>, rowIndex: number) => (
+      {solution}
+      {solution && wordInputs.map((row: Array<string>, rowIndex: number) => (
         <div className="word-row" key={rowIndex}>
           {row.map((word: string, letterIndex: number) => (
             <div className="word-letter" id={'cell' + rowIndex + letterIndex} key={`${rowIndex}-${letterIndex}`}>
@@ -130,7 +131,7 @@ const Playground = () => {
       {isGameOver && <div>
           <h2>Game over!!</h2>
           <div className='d-flex gap-1 justify-content-center'>
-            <Button variant="outlined" size="medium" onClick={() => startNewGame()}>Start new game</Button>
+            <Button variant="outlined" size="medium" onClick={() => startNewGame()}>TRY AGAIN</Button>
             <Link to={"/"}><Button variant="outlined" size="medium">Home</Button></Link>
           </div>
         </div>}
