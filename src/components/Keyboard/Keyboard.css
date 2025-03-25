@@ -1,0 +1,30 @@
+.main-container{
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+.row{
+    gap: 0.5rem;
+}
+.key{
+    width: 40px;
+    height: 40px;
+    border: 2px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.key:hover{
+    background-color: #D3D3D3;
+}
+
+@media screen and (max-width: 450px) {
+    .key{
+        width: 30px;
+        height: 30px;
+    }
+    .row{
+        max-width: 400px;
+    }
+}

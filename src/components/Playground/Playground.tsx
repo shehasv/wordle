@@ -3,6 +3,7 @@ import './Playground.css';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
 import { words } from '../../words';
+import Keyboard from '../Keyboard/Keyboard';
 
 
 const Playground = () => {
@@ -69,21 +70,7 @@ const Playground = () => {
     const isEnter: boolean = event.key === 'Enter';
     const isBackspace: boolean = event.key === 'Backspace';
 
-    if (isLetter || isEnter || isBackspace) {
-      if (isLetter) {
-        const availedIndex = wordInputs[numberOfTries].findIndex(
-          (letter: string) => !letter
-        );
-        updateCell(numberOfTries, availedIndex, event.key.toUpperCase());
-      } else if (isBackspace) {
-        const removeIndex = wordInputs[numberOfTries].findLastIndex(
-          (letter: string) => letter
-        );
-        updateCell(numberOfTries, removeIndex, '');
-      } else {
-        checkGameOver();
-      }
-    }
+    hanldeKeyClick(isLetter, isEnter, isBackspace, event?.key)
 
     event.preventDefault();
     event.stopPropagation();
@@ -113,27 +100,61 @@ const Playground = () => {
     });
   };
 
+  function onKeyClick(event:any){
+    const isLetter: boolean = /^[a-zA-Z]$/.test(event?.target?.innerHTML);
+    const isEnter: boolean = event?.target?.innerHTML === '✅';
+    const isBackspace: boolean = event?.target?.innerHTML === '🔙';
+
+    hanldeKeyClick(isLetter, isEnter, isBackspace, event?.target?.innerHTML)
+    event?.preventDefault();
+    event?.stopPropagation();
+  }
+  
+  function hanldeKeyClick(isLetter:boolean, isEnter:boolean, isBackspace:boolean, key:string){
+    if (isLetter || isEnter || isBackspace) {
+      if (isLetter) {
+        const availedIndex = wordInputs[numberOfTries].findIndex(
+          (letter: string) => !letter
+        );
+        updateCell(numberOfTries, availedIndex, key.toUpperCase());
+      } else if (isBackspace) {
+        const removeIndex = wordInputs[numberOfTries].findLastIndex(
+          (letter: string) => letter
+        );
+        updateCell(numberOfTries, removeIndex, '');
+      } else {
+        checkGameOver();
+      }
+    }
+  } 
+
   
 
   return (
-    <div>
-      {solution && wordInputs.map((row: Array<string>, rowIndex: number) => (
-        <div className="word-row" key={rowIndex}>
-          {row.map((word: string, letterIndex: number) => (
-            <div className="word-letter" id={'cell' + rowIndex + letterIndex} key={`${rowIndex}-${letterIndex}`}>
-              {' '}
-              {word}{' '}
-            </div>
-          ))}
-        </div>
-      ))}
-      {isGameOver && <div>
-          <h2>Game over!!</h2>
-          <div className='d-flex gap-1 justify-content-center'>
-            <Button variant="outlined" size="medium" onClick={() => startNewGame()}>TRY AGAIN</Button>
-            <Link to={"/"}><Button variant="outlined" size="medium">Home</Button></Link>
+    <div className='playground-main-container'>
+      <div className='grid-container'>
+        {solution && wordInputs.map((row: Array<string>, rowIndex: number) => (
+          <div className="word-row" key={rowIndex}>
+            {row.map((word: string, letterIndex: number) => (
+              <div className="word-letter" id={'cell' + rowIndex + letterIndex} key={`${rowIndex}-${letterIndex}`}>
+                {' '}
+                {word}{' '}
+              </div>
+            ))}
           </div>
-        </div>}
+        ))}
+        {isGameOver && <div>
+            <h2>Game over!!</h2>
+            <div className='d-flex gap-1 justify-content-center'>
+              <Button variant="outlined" size="medium" onClick={() => startNewGame()}>TRY AGAIN</Button>
+              <Link to={"/"}><Button variant="outlined" size="medium">Home</Button></Link>
+            </div>
+          </div>}
+      </div>
+
+      <div className='keyboard-container'>
+        <Keyboard keyClick={onKeyClick}></Keyboard>
+      </div>
     </div>
   );
 };

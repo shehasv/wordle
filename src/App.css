@@ -1,11 +1,13 @@
 #root {
-  margin: 0 auto;
   text-align: center;
+  display: flex;
+  
 }
 .wordle-main-container{
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  align-items: center;
 }
 .header-container{
   width: 300px;
