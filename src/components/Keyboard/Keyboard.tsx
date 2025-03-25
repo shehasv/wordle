@@ -11,15 +11,15 @@ interface keyboard {
 
 const Keyboard:React.FC<keyboard> = ({keyClick}) => {
 
-    return <div className='main-container d-flex'>
+    return <div className='keyboard-main-container d-flex'>
         <div className='row row-1 d-flex'>
-            {topRow.map((key) => <Button variant="outlined" size="small" className='key' key={key} onClick={((event)=> keyClick(event))}>{key}</Button>)}
+            {topRow.map((key) => <Button variant="outlined" size="small" className='key' key={key} onClick={(()=> keyClick(key))}>{key}</Button>)}
         </div>
         <div className='row row-2 d-flex'>
-            {midRow.map((key) => <Button variant="outlined" size="small" className='key' key={key} onClick={((event)=> keyClick(event))}>{key}</Button>)}
+            {midRow.map((key) => <Button variant="outlined" size="small" className='key' key={key} onClick={(()=> keyClick(key))}>{key}</Button>)}
         </div>
         <div className='row row-3 d-flex'>
-            {lowRow.map((key) => <Button variant="outlined" size="small"className='key' key={key} onClick={((event)=> keyClick(event))}>{key}</Button>)}
+            {lowRow.map((key) => <Button variant="outlined" size="small"className='key' key={key} onClick={(()=> keyClick(key))}>{key}</Button>)}
         </div>
     </div>
 }

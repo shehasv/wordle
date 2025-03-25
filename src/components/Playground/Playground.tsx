@@ -100,14 +100,12 @@ const Playground = () => {
     });
   };
 
-  function onKeyClick(event:any){
-    const isLetter: boolean = /^[a-zA-Z]$/.test(event?.target?.innerText);
-    const isEnter: boolean = event?.target?.innerText === '✅';
-    const isBackspace: boolean = event?.target?.innerText === '🔙';
+  function onKeyClick(key:any){
+    const isLetter: boolean = /^[a-zA-Z]$/.test(key);
+    const isEnter: boolean = key === '✅';
+    const isBackspace: boolean = key === '🔙';
 
-    hanldeKeyClick(isLetter, isEnter, isBackspace, event?.target?.innerText)
-    event?.preventDefault();
-    event?.stopPropagation();
+    hanldeKeyClick(isLetter, isEnter, isBackspace, key)
   }
   
   function hanldeKeyClick(isLetter:boolean, isEnter:boolean, isBackspace:boolean, key:string){
