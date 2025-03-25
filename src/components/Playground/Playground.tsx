@@ -40,7 +40,7 @@ const Playground = () => {
     setNumberOfTries(0);
     setWordInputs(Array(6).fill(null).map(() => Array(5).fill('')));
     wordInputs.forEach((word,rowInd) =>{
-      word.forEach((letter,cellInd)=>{
+      word.forEach((_letter,cellInd)=>{
         const elem = document.getElementById('cell'+rowInd+cellInd);
         elem?.classList.remove(...elem.classList);
         elem?.classList.add('word-letter');
