@@ -11,7 +11,10 @@ const Playground = () => {
     Array(6).fill(null).map(() => Array(5).fill(''))
   );
   const [numberOfTries, setNumberOfTries] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(false);
+  const [gameStatus, setIsGameStatus] = useState({
+    finished: false,
+    gameOver: false
+  });
   const [wordsList, setWords] = useState<string[]>([]);
   const [solution, setSolution] = useState('');
 
@@ -27,7 +30,12 @@ const Playground = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     if(numberOfTries == 6){
-      setIsGameOver(true)
+      setIsGameStatus((currentValue) => {
+        return {
+          ...currentValue,
+          gameOver: true
+        }
+      })
     }
 
     return () => document.removeEventListener('keydown', handleKeyDown);
@@ -47,7 +55,10 @@ const Playground = () => {
         elem?.classList.add('word-letter');
       })
     })
-    setIsGameOver((prev) => !prev);
+    setIsGameStatus({
+      finished: false,
+      gameOver: false
+    });
     updateSolution();
   }
 
@@ -80,6 +91,12 @@ const Playground = () => {
     
     if (wordInputs[numberOfTries].every((item: string) => item)) {
       validateWord();
+      if(wordInputs[numberOfTries].join('') == solution){
+        setIsGameStatus({
+          finished: true,
+          gameOver: true
+        });
+      }
       setNumberOfTries((prev) => prev + 1);
     } else {
       // Alert user to complete the word
@@ -130,6 +147,7 @@ const Playground = () => {
 
   return (
     <div className='playground-main-container'>
+      {solution}
       <div className='grid-container'>
         {solution && wordInputs.map((row: Array<string>, rowIndex: number) => (
           <div className="word-row" key={rowIndex}>
@@ -141,18 +159,18 @@ const Playground = () => {
             ))}
           </div>
         ))}
-        {isGameOver && <div>
-            <h2>Game over!!</h2>
+        {gameStatus.gameOver && <div>
+            <h2>{gameStatus.finished ? 'Impressive!! You Won' : 'Game Over!! You Lost'}</h2>
             <div className='d-flex gap-1 justify-content-center'>
-              <Button variant="outlined" size="medium" onClick={() => startNewGame()}>TRY AGAIN</Button>
+              <Button variant="outlined" size="medium" onClick={() => startNewGame()}>{gameStatus.finished ? 'NEW GAME' : 'TRY AGAIN'}</Button>
               <Link to={"/"}><Button variant="outlined" size="medium">Home</Button></Link>
             </div>
           </div>}
       </div>
 
-      <div className='keyboard-container'>
+      {!gameStatus.gameOver && <div className='keyboard-container'>
         <Keyboard keyClick={onKeyClick}></Keyboard>
-      </div>
+      </div>}
     </div>
   );
 };

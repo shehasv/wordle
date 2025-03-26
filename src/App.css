@@ -12,6 +12,7 @@
 .header-container{
   width: 300px;
   height: 100px;
+  cursor: pointer;
 }
 
 .header-container img{
