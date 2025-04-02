@@ -1,12 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './Playground.css';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
 import { words } from '../../words';
 import Keyboard from '../Keyboard/Keyboard';
 
+interface KeyBoardMethods {
+  highlightKey: (word:string,solution:string) => void;
+}
 
 const Playground = () => {
+
+  const childRef = useRef<KeyBoardMethods>(null);
+
   const [wordInputs, setWordInputs] = useState(
     Array(6).fill(null).map(() => Array(5).fill(''))
   );
@@ -39,7 +45,7 @@ const Playground = () => {
     }
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [wordInputs, numberOfTries]);
+  }, [wordInputs, numberOfTries, gameStatus.gameOver]);
 
   const fetchWords = () => {
     setWords(words);
@@ -90,16 +96,21 @@ const Playground = () => {
   const checkGameOver = () => {
     
     if (wordInputs[numberOfTries].every((item: string) => item)) {
+      const input = wordInputs[numberOfTries].join('')
       validateWord();
-      if(wordInputs[numberOfTries].join('') == solution){
+      if(input == solution){
         setIsGameStatus({
           finished: true,
           gameOver: true
         });
       }
+      if (childRef.current) {
+        childRef.current.highlightKey(input,solution);
+      }
       setNumberOfTries((prev) => prev + 1);
     } else {
       // Alert user to complete the word
+      navigator.vibrate(500);
     }
   };
 
@@ -126,7 +137,7 @@ const Playground = () => {
   }
   
   function hanldeKeyClick(isLetter:boolean, isEnter:boolean, isBackspace:boolean, key:string){
-    if (isLetter || isEnter || isBackspace) {
+    if ((isLetter || isEnter || isBackspace) && !gameStatus.gameOver) {
       if (isLetter) {
         const availedIndex = wordInputs[numberOfTries].findIndex(
           (letter: string) => !letter
@@ -147,7 +158,7 @@ const Playground = () => {
 
   return (
     <div className='playground-main-container'>
-      <div className='grid-container'>
+            <div className='grid-container'>
         {solution && wordInputs.map((row: Array<string>, rowIndex: number) => (
           <div className="word-row" key={rowIndex}>
             {row.map((word: string, letterIndex: number) => (
@@ -168,7 +179,7 @@ const Playground = () => {
       </div>
 
       {!gameStatus.gameOver && <div className='keyboard-container'>
-        <Keyboard keyClick={onKeyClick}></Keyboard>
+        <Keyboard keyClick={onKeyClick} ref={childRef} ></Keyboard>
       </div>}
     </div>
   );
