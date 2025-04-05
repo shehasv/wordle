@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import './Playground.css';
 import Button from '@mui/material/Button';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { words } from '../../words';
 import Keyboard from '../Keyboard/Keyboard';
+import RoomDialog from '../RoomDialog/RoomDialog';
 
 interface KeyBoardMethods {
   highlightKey: (word:string,solution:string) => void;
@@ -12,6 +13,8 @@ interface KeyBoardMethods {
 const Playground = () => {
 
   const childRef = useRef<KeyBoardMethods>(null);
+  const location = useLocation();
+  const { state } = location;
 
   const [wordInputs, setWordInputs] = useState(
     Array(6).fill(null).map(() => Array(5).fill(''))
@@ -23,9 +26,13 @@ const Playground = () => {
   });
   const [wordsList, setWords] = useState<string[]>([]);
   const [solution, setSolution] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
 
   useEffect(() => {
     fetchWords();
+    if(state.mode == 'online'){
+      setOpenDialog(true)
+    }
   }, []);
 
   useEffect(() => {
@@ -181,6 +188,7 @@ const Playground = () => {
       {!gameStatus.gameOver && <div className='keyboard-container'>
         <Keyboard keyClick={onKeyClick} ref={childRef} ></Keyboard>
       </div>}
+      <RoomDialog openDialog={openDialog} setOpenDialog={setOpenDialog} />
     </div>
   );
 };
