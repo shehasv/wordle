@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import './Playground.css';
 import Button from '@mui/material/Button';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { words } from '../../words';
 import Keyboard from '../Keyboard/Keyboard';
 
@@ -12,7 +12,7 @@ interface KeyBoardMethods {
 const Playground = () => {
 
   const childRef = useRef<KeyBoardMethods>(null);
-  const location = useLocation();
+  // const location = useLocation();
   // const { state } = location;
 
   const [wordInputs, setWordInputs] = useState(
