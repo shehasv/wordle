@@ -13,7 +13,7 @@ const Playground = () => {
 
   const childRef = useRef<KeyBoardMethods>(null);
   const location = useLocation();
-  const { state } = location;
+  // const { state } = location;
 
   const [wordInputs, setWordInputs] = useState(
     Array(6).fill(null).map(() => Array(5).fill(''))

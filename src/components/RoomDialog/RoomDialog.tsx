@@ -48,7 +48,7 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
                     <div><hr /></div>
                     <div className='room-join-container'>
                         <TextField size="small" label="Room Id" variant="outlined" value={joinRoomId} onChange={(e) => handleRoomIdValueChange(e.target.value)} />
-                        <Button variant="contained" size="medium" disabled={!joinRoomId || !playerName} onClick={(e) => handleClose()}>Join Room</Button>
+                        <Button variant="contained" size="medium" disabled={!joinRoomId || !playerName} onClick={() => handleClose()}>Join Room</Button>
                     </div>
                 </div>
             </div>
