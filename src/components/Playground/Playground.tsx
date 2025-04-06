@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import './Playground.css';
 import Button from '@mui/material/Button';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { words } from '../../words';
 import Keyboard from '../Keyboard/Keyboard';
 
@@ -12,8 +12,8 @@ interface KeyBoardMethods {
 const Playground = () => {
 
   const childRef = useRef<KeyBoardMethods>(null);
-  // const location = useLocation();
-  // const { state } = location;
+  const location = useLocation();
+  const { state } = location;
 
   const [wordInputs, setWordInputs] = useState(
     Array(6).fill(null).map(() => Array(5).fill(''))
@@ -31,7 +31,11 @@ const Playground = () => {
   }, []);
 
   useEffect(() => {
-    updateSolution();
+    if(state.solution) {
+      setSolution(state.solution) 
+    } else{
+      updateSolution()
+    } 
   },[wordsList])
 
   useEffect(() => {
@@ -161,6 +165,7 @@ const Playground = () => {
   return (
     <div className='playground-main-container'>
             <div className='grid-container'>
+        {solution}
         {solution && wordInputs.map((row: Array<string>, rowIndex: number) => (
           <div className="word-row" key={rowIndex}>
             {row.map((word: string, letterIndex: number) => (
