@@ -165,7 +165,6 @@ const Playground = () => {
   return (
     <div className='playground-main-container'>
             <div className='grid-container'>
-        {solution}
         {solution && wordInputs.map((row: Array<string>, rowIndex: number) => (
           <div className="word-row" key={rowIndex}>
             {row.map((word: string, letterIndex: number) => (
