@@ -29,3 +29,9 @@
 .incorrect {
   background-color: grey;
 }
+.solution-container{
+  padding: 1rem 0;
+}
+.solution-container .solution {
+  font-weight: bolder;
+}

@@ -12,13 +12,15 @@ function Home() {
     const navigate = useNavigate();
     const [isGameStarted,setIsGameStarted] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
+    const [gameLevel, setGameLevel] = useState('easy')
     
 
     const startGame = (gameMode:string) => {
         if(gameMode == 'offline'){
             navigate('/play',{
                 state: {
-                    mode: gameMode
+                    mode: gameMode,
+                    gameLevel: gameLevel
                 }
             });
         } else{

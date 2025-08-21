@@ -4,10 +4,14 @@ import Button from '@mui/material/Button';
 import { Link, useLocation } from 'react-router-dom';
 import { words } from '../../words';
 import Keyboard from '../Keyboard/Keyboard';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
 
 interface KeyBoardMethods {
   highlightKey: (word:string,solution:string) => void;
 }
+
 
 const Playground = () => {
 
@@ -25,6 +29,7 @@ const Playground = () => {
   });
   const [wordsList, setWords] = useState<string[]>([]);
   const [solution, setSolution] = useState('');
+  const [showSnackbar, setShowSnackbar] = useState(false)
 
   useEffect(() => {
     fetchWords();
@@ -103,19 +108,24 @@ const Playground = () => {
     
     if (wordInputs[numberOfTries].every((item: string) => item)) {
       const input = wordInputs[numberOfTries].join('')
-      validateWord();
-      if(input == solution){
-        setIsGameStatus({
-          finished: true,
-          gameOver: true
-        });
+      if(!wordsList.includes(input) && state.gameLevel != 'easy'){
+        setShowSnackbar(true)
+      } else{
+        validateWord();
+        if(input == solution){
+          setIsGameStatus({
+            finished: true,
+            gameOver: true
+          });
+        }
+        if (childRef.current) {
+          childRef.current.highlightKey(input,solution);
+        }
+        setNumberOfTries((prev) => prev + 1);
       }
-      if (childRef.current) {
-        childRef.current.highlightKey(input,solution);
-      }
-      setNumberOfTries((prev) => prev + 1);
     } else {
       // Alert user to complete the word
+      setShowSnackbar(true)
       navigator.vibrate(500);
     }
   };
@@ -163,6 +173,7 @@ const Playground = () => {
   
 
   return (
+    <>
     <div className='playground-main-container'>
             <div className='grid-container'>
         {solution && wordInputs.map((row: Array<string>, rowIndex: number) => (
@@ -177,6 +188,10 @@ const Playground = () => {
         ))}
         {gameStatus.gameOver && <div>
             <h2>{gameStatus.finished ? 'Impressive!! You Won' : 'Game Over!! You Lost'}</h2>
+            {!gameStatus.finished && <div className='solution-container'>
+              <span>Solution: </span>
+              <span className='solution'>{solution}</span>
+            </div> }
             <div className='d-flex gap-1 justify-content-center'>
               <Button variant="outlined" size="medium" onClick={() => startNewGame()}>{gameStatus.finished ? 'NEW GAME' : 'TRY AGAIN'}</Button>
               <Link to={"/"}><Button variant="outlined" size="medium">Home</Button></Link>
@@ -188,6 +203,21 @@ const Playground = () => {
         <Keyboard keyClick={onKeyClick} ref={childRef} ></Keyboard>
       </div>}
     </div>
+    <div>
+    <Snackbar open={showSnackbar} autoHideDuration={2000}
+    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+    onClose={() => {
+      setShowSnackbar(false)
+    }}>
+      <Alert
+        severity="warning"
+        variant="filled"
+      >
+        Oops! Guess a proper word to keep the game going.
+      </Alert>
+    </Snackbar>
+    </div>
+    </>
   );
 };
 
