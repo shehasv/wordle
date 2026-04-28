@@ -22,5 +22,22 @@
     .keyboard-main-container .MuiButton-outlined {
         width: 28px;
         min-width: 24px !important;
+        padding: 4px 2px;
+        font-size: 0.75rem;
+    }
+    .row {
+        gap: 0.2rem;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .keyboard-main-container .MuiButton-outlined {
+        width: 24px;
+        min-width: 20px !important;
+        padding: 4px 0px;
+        font-size: 0.7rem;
+    }
+    .row {
+        gap: 0.15rem;
     }
 }

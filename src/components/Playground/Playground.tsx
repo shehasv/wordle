@@ -28,7 +28,9 @@ const Playground = () => {
     finished: false,
     gameOver: false,
     tied: false,
-    disconnected: false
+    disconnected: false,
+    waitingForOpponent: false,
+    opponentResult: null as string | null
   });
   const [wordsList, setWords] = useState<string[]>([]);
   const [solution, setSolution] = useState('');
@@ -56,7 +58,9 @@ const Playground = () => {
       setIsGameStatus((currentValue) => {
         return {
           ...currentValue,
-          gameOver: true
+          gameOver: true,
+          waitingForOpponent: state?.mode === 'online' && !currentValue.opponentResult,
+          tied: currentValue.opponentResult === 'failed'
         }
       })
     }
@@ -67,33 +71,41 @@ const Playground = () => {
   useEffect(() => {
     if (state?.mode === 'online') {
       socket.on('opponentWon', () => {
-        setIsGameStatus({
-          finished: false,
-          gameOver: true,
-          tied: false,
-          disconnected: false
-        });
+        setIsGameStatus((prev) => ({
+          ...prev,
+          opponentResult: 'win',
+          tied: prev.gameOver && prev.finished,
+          waitingForOpponent: false
+        }));
+      });
+      socket.on('opponentFailed', () => {
+        setIsGameStatus((prev) => ({
+          ...prev,
+          opponentResult: 'failed',
+          tied: prev.gameOver && !prev.finished,
+          waitingForOpponent: false
+        }));
       });
       socket.on('matchTied', () => {
-        setIsGameStatus({
-          finished: false,
-          gameOver: true,
+        setIsGameStatus((prev) => ({
+          ...prev,
           tied: true,
-          disconnected: false
-        });
+          waitingForOpponent: false
+        }));
       });
       socket.on('playerDisconnected', () => {
-        setIsGameStatus({
-          finished: false,
+        setIsGameStatus((prev) => ({
+          ...prev,
           gameOver: true,
-          tied: false,
-          disconnected: true
-        });
+          disconnected: true,
+          waitingForOpponent: false
+        }));
       });
     }
 
     return () => {
       socket.off('opponentWon');
+      socket.off('opponentFailed');
       socket.off('matchTied');
       socket.off('playerDisconnected');
     }
@@ -117,7 +129,9 @@ const Playground = () => {
       finished: false,
       gameOver: false,
       tied: false,
-      disconnected: false
+      disconnected: false,
+      waitingForOpponent: false,
+      opponentResult: null
     });
     updateSolution();
   }
@@ -156,15 +170,16 @@ const Playground = () => {
       } else{
         validateWord();
         if(input == solution){
-          setIsGameStatus({
-            finished: true,
-            gameOver: true,
-            tied: false,
-            disconnected: false
-          });
           if (state?.mode === 'online') {
             socket.emit('playerWon', { roomName: state.roomId });
           }
+          setIsGameStatus((currentValue) => ({
+            ...currentValue,
+            finished: true,
+            gameOver: true,
+            waitingForOpponent: state?.mode === 'online' && !currentValue.opponentResult,
+            tied: currentValue.opponentResult === 'win'
+          }));
         }
         if (childRef.current) {
           childRef.current.highlightKey(input,solution);
@@ -239,14 +254,17 @@ const Playground = () => {
             ))}
           </div>
         ))}
-        {gameStatus.gameOver && <div>
-            <h2>{gameStatus.disconnected ? 'Opponent Disconnected' : gameStatus.tied ? 'Match Tied!!' : gameStatus.finished ? 'Impressive!! You Won' : 'Game Over!! You Lost'}</h2>
+        {gameStatus.gameOver && gameStatus.waitingForOpponent && <div>
+            <h2>{state.opponentName || 'Opponent'} is still playing...</h2>
+        </div>}
+        {gameStatus.gameOver && !gameStatus.waitingForOpponent && <div>
+            <h2>{gameStatus.disconnected ? 'Opponent Disconnected' : gameStatus.tied ? 'Match Tied!!' : gameStatus.finished ? 'Impressive!! You Won' : (state?.mode === 'online' && gameStatus.opponentResult === 'win') ? `${state.opponentName || 'Opponent'} wins!!` : 'Game Over!! You Lost'}</h2>
             {!gameStatus.finished && <div className='solution-container'>
               <span>Solution: </span>
               <span className='solution'>{solution}</span>
             </div> }
             <div className='d-flex gap-1 justify-content-center'>
-              <Button variant="outlined" size="medium" onClick={() => startNewGame()}>{gameStatus.finished ? 'NEW GAME' : 'TRY AGAIN'}</Button>
+              {state?.mode !== 'online' ? <Button variant="outlined" size="medium" onClick={() => startNewGame()}>{gameStatus.finished ? 'NEW GAME' : 'TRY AGAIN'}</Button> : null}
               <Link to={"/"}><Button variant="outlined" size="medium">Home</Button></Link>
             </div>
           </div>}

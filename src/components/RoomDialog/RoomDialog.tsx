@@ -30,15 +30,32 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
         socket.on('roomFull',(() => {
             console.log('Room is full')
         }))
-        socket.on('validRoom',((data) => {
-            console.log(data)
+        socket.on('validRoom',((data: any) => {
+            console.log('validRoom received', data)
+            
+            let oppName = 'Opponent';
+            if (data.players && Array.isArray(data.players)) {
+                // Assuming players is an array of objects like { id, name } or strings
+                const opponent = data.players.find((p: any) => 
+                    (typeof p === 'object' ? p.name !== playerName : p !== playerName)
+                );
+                if (opponent) {
+                    oppName = typeof opponent === 'object' ? opponent.name : opponent;
+                }
+            } else if (data.opponentName) {
+                oppName = data.opponentName;
+            } else if (data.name && data.name !== playerName) {
+                oppName = data.name;
+            }
+
             setOpenDialog(false);
             navigate('/play',{
                 state: {
                     solution: data.solution,
                     roomId: data.roomName,
                     mode: 'online',
-                    gameLevel: 'easy'
+                    gameLevel: 'easy',
+                    opponentName: oppName
                 }
             })
         }))
