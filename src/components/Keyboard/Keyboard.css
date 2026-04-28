@@ -13,17 +13,19 @@
 
 @media screen and (max-width: 700px) {
     .keyboard-main-container .MuiButton-outlined {
-        min-width: 30px !important;
-        width: 32px;
+        min-width: 8vw !important;
+        width: 8.5vw;
+        height: 50px;
     }
 }
 
 @media screen and (max-width: 420px) {
     .keyboard-main-container .MuiButton-outlined {
-        width: 28px;
-        min-width: 24px !important;
-        padding: 4px 2px;
+        width: 8.5vw;
+        min-width: 8vw !important;
+        padding: 0;
         font-size: 0.75rem;
+        height: 50px;
     }
     .row {
         gap: 0.2rem;
@@ -32,10 +34,11 @@
 
 @media screen and (max-width: 380px) {
     .keyboard-main-container .MuiButton-outlined {
-        width: 24px;
-        min-width: 20px !important;
-        padding: 4px 0px;
+        width: 8vw;
+        min-width: 7.5vw !important;
+        padding: 0;
         font-size: 0.7rem;
+        height: 45px;
     }
     .row {
         gap: 0.15rem;

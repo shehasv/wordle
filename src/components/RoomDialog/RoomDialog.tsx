@@ -20,10 +20,24 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
     const [playerName, setPlayerName] = useState('Player'+ Math.floor(Math.random() * (1000 - 1 + 1) + 1));
     const [roomStatus, setRoomStatus] = useState({
         created: false,
-        name: ''
+        name: '',
+        solution: ''
     })
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
+        const handleConnect = () => {
+            if (roomStatus.created && roomStatus.name) {
+                // Re-create the room on the server because it might have been deleted when disconnected in the background
+                socket.emit('createRoom', {
+                    name: playerName,
+                    roomName: roomStatus.name,
+                    solution: roomStatus.solution
+                });
+            }
+        };
+        socket.on('connect', handleConnect);
+
         socket.on('invalidRoom',((data) => {
             console.log(data)
         }))
@@ -59,19 +73,28 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
                 }
             })
         }))
-    },[roomStatus])
+        
+        return () => {
+            socket.off('connect', handleConnect);
+            socket.off('invalidRoom');
+            socket.off('roomFull');
+            socket.off('validRoom');
+        }
+    },[roomStatus, playerName, navigate])
 
 
     const createRoom = () => {
         const roomId = generateRoomId();
+        const generatedSolution = getSolution();
         socket.emit('createRoom',{
             name: playerName,
             roomName: roomId,
-            solution: getSolution()
+            solution: generatedSolution
         })
         setRoomStatus({
             created:true,
-            name: roomId
+            name: roomId,
+            solution: generatedSolution
         })
     }
 
@@ -89,9 +112,18 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
     const handleClose = () => {
         setRoomStatus({
             created: false,
-            name: ''
+            name: '',
+            solution: ''
         })
         setOpenDialog(false);
+    };
+
+    const handleCopy = () => {
+        if (roomStatus.name) {
+            navigator.clipboard.writeText(roomStatus.name);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
     };
 
     const handleRoomIdValueChange = (value:string) => {
@@ -110,23 +142,42 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {"Play with friends"}
+        <DialogTitle id="alert-dialog-title" className="dialog-title">
+          {"🎮 Play Multiplayer"}
         </DialogTitle>
         <DialogContent>
             <div className='dialog-content-container'>
                 <div className='name-container'>
-                    <TextField autoFocus size="small" label="Player Name" variant="outlined" value={playerName} onChange={(e) => handlePlayerNameValueChange(e.target.value)} />
+                    <TextField autoFocus size="small" label="Player Name" variant="outlined" fullWidth value={playerName} onChange={(e) => handlePlayerNameValueChange(e.target.value)} />
                 </div>
-                <div className='room-container d-flex gap-1'>
+                
+                <div className='room-container'>
                     <div className='room-create-container'>
-                        <Button variant="contained" disabled={!playerName || roomStatus.created} size="medium" onClick={() => createRoom()}>Create Room</Button>
-                        { roomStatus.created && <div>Invite your friend to join the room: <code>{roomStatus.name}</code></div> }
+                        <h4 className="section-title">Host a Game</h4>
+                        <Button variant="contained" color="secondary" disabled={!playerName || roomStatus.created} size="medium" onClick={() => createRoom()}>Create Room</Button>
+                        
+                        { roomStatus.created && <div className="room-code-display">
+                            <span>Room Code:</span>
+                            <div className="code-box">
+                                <code>{roomStatus.name}</code>
+                                <Button variant="outlined" size="small" onClick={handleCopy} className="copy-btn">
+                                    {copied ? '✅ Copied' : '📋 Copy'}
+                                </Button>
+                            </div>
+                            <small className="invite-text">Share this code with your opponent.</small>
+                        </div> }
                     </div>
-                    <div><hr /></div>
+                    
+                    <div className="divider-container">
+                        <hr className="vertical-divider" /> 
+                        <span className="or-badge">OR</span> 
+                        <hr className="vertical-divider" />
+                    </div>
+                    
                     <div className='room-join-container'>
-                        <TextField size="small" label="Room Id" variant="outlined" value={joinRoomId} onChange={(e) => handleRoomIdValueChange(e.target.value)} />
-                        <Button variant="contained" size="medium" disabled={!joinRoomId || !playerName || roomStatus.created} onClick={() => joinRoom(joinRoomId)}>Join Room</Button>
+                        <h4 className="section-title">Join a Game</h4>
+                        <TextField size="small" label="Room Code" variant="outlined" fullWidth value={joinRoomId} onChange={(e) => handleRoomIdValueChange(e.target.value)} />
+                        <Button variant="contained" color="primary" size="medium" disabled={!joinRoomId || !playerName || roomStatus.created} onClick={() => joinRoom(joinRoomId)}>Join Room</Button>
                     </div>
                 </div>
             </div>

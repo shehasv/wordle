@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import './Playground.css';
 import Button from '@mui/material/Button';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { words } from '../../words';
 import Keyboard from '../Keyboard/Keyboard';
 import Snackbar from '@mui/material/Snackbar';
@@ -18,7 +18,18 @@ const Playground = () => {
 
   const childRef = useRef<KeyBoardMethods>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { state } = location;
+
+  useEffect(() => {
+    // Handle browser refresh: disconnect and go home
+    if (state?.mode === 'online') {
+      const navEntries = performance.getEntriesByType("navigation");
+      if (navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === "reload") {
+        navigate('/');
+      }
+    }
+  }, [state, navigate]);
 
   const [wordInputs, setWordInputs] = useState(
     Array(6).fill(null).map(() => Array(5).fill(''))
