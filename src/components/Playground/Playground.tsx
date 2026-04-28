@@ -6,6 +6,7 @@ import { words } from '../../words';
 import Keyboard from '../Keyboard/Keyboard';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { socket } from '../../socket';
 
 
 interface KeyBoardMethods {
@@ -25,7 +26,8 @@ const Playground = () => {
   const [numberOfTries, setNumberOfTries] = useState(0);
   const [gameStatus, setIsGameStatus] = useState({
     finished: false,
-    gameOver: false
+    gameOver: false,
+    tied: false
   });
   const [wordsList, setWords] = useState<string[]>([]);
   const [solution, setSolution] = useState('');
@@ -47,6 +49,9 @@ const Playground = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     if(numberOfTries == 6){
+      if (!gameStatus.finished && state?.mode === 'online' && !gameStatus.gameOver) {
+        socket.emit('playerFailed', { roomName: state.roomId });
+      }
       setIsGameStatus((currentValue) => {
         return {
           ...currentValue,
@@ -57,6 +62,30 @@ const Playground = () => {
 
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [wordInputs, numberOfTries, gameStatus.gameOver]);
+
+  useEffect(() => {
+    if (state?.mode === 'online') {
+      socket.on('opponentWon', () => {
+        setIsGameStatus({
+          finished: false,
+          gameOver: true,
+          tied: false
+        });
+      });
+      socket.on('matchTied', () => {
+        setIsGameStatus({
+          finished: false,
+          gameOver: true,
+          tied: true
+        });
+      });
+    }
+
+    return () => {
+      socket.off('opponentWon');
+      socket.off('matchTied');
+    }
+  }, [state?.mode]);
 
   const fetchWords = () => {
     setWords(words);
@@ -74,7 +103,8 @@ const Playground = () => {
     })
     setIsGameStatus({
       finished: false,
-      gameOver: false
+      gameOver: false,
+      tied: false
     });
     updateSolution();
   }
@@ -115,8 +145,12 @@ const Playground = () => {
         if(input == solution){
           setIsGameStatus({
             finished: true,
-            gameOver: true
+            gameOver: true,
+            tied: false
           });
+          if (state?.mode === 'online') {
+            socket.emit('playerWon', { roomName: state.roomId });
+          }
         }
         if (childRef.current) {
           childRef.current.highlightKey(input,solution);
@@ -187,7 +221,7 @@ const Playground = () => {
           </div>
         ))}
         {gameStatus.gameOver && <div>
-            <h2>{gameStatus.finished ? 'Impressive!! You Won' : 'Game Over!! You Lost'}</h2>
+            <h2>{gameStatus.tied ? 'Match Tied!!' : gameStatus.finished ? 'Impressive!! You Won' : 'Game Over!! You Lost'}</h2>
             {!gameStatus.finished && <div className='solution-container'>
               <span>Solution: </span>
               <span className='solution'>{solution}</span>

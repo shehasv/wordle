@@ -35,7 +35,9 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
             setOpenDialog(false);
             navigate('/play',{
                 state: {
-                    solution: data.solution
+                    solution: data.solution,
+                    roomId: data.roomName,
+                    mode: 'online'
                 }
             })
         }))
