@@ -36,6 +36,96 @@
   font-weight: bolder;
 }
 
+.opponent-info {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.opponent-name {
+  color: #fbbf24;
+  font-weight: 800;
+}
+
+.game-status-message {
+  text-align: center;
+  margin-top: 1.5rem;
+  animation: pulse 1.5s infinite;
+}
+
+.game-status-message h2 {
+  font-size: 1.2rem;
+  color: #555;
+  background-color: #f8f9fa;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: 2px dashed #ccc;
+  margin: 0;
+}
+
+.game-status-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  margin-top: 1.5rem;
+  text-align: center;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  max-width: 90vw;
+}
+
+.game-status-panel h2 {
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  color: #1f2937;
+  font-size: 1.8rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+.game-status-panel .solution-container {
+  background-color: #fff7ed;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  color: #ea580c;
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  border: 1px solid #fdba74;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.action-buttons button {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 8px;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 0.8; transform: scale(0.98); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 @media screen and (max-width: 480px) {
   .word-letter {
     width: 45px;

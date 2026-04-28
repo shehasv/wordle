@@ -239,8 +239,8 @@ const Playground = () => {
     <>
     <div className='playground-main-container'>
       {state?.mode === 'online' && state?.opponentName && (
-        <div className="opponent-info" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
-          Playing against: {state.opponentName}
+        <div className="opponent-info">
+          ⚔️ Battle against: <span className="opponent-name">{state.opponentName}</span>
         </div>
       )}
             <div className='grid-container'>
@@ -254,18 +254,18 @@ const Playground = () => {
             ))}
           </div>
         ))}
-        {gameStatus.gameOver && gameStatus.waitingForOpponent && <div>
-            <h2>{state.opponentName || 'Opponent'} is still playing...</h2>
+        {gameStatus.gameOver && gameStatus.waitingForOpponent && <div className="game-status-message">
+            <h2>👀 {state.opponentName || 'Opponent'} is still guessing...</h2>
         </div>}
-        {gameStatus.gameOver && !gameStatus.waitingForOpponent && <div>
-            <h2>{gameStatus.disconnected ? 'Opponent Disconnected' : gameStatus.tied ? 'Match Tied!!' : gameStatus.finished ? 'Impressive!! You Won' : (state?.mode === 'online' && gameStatus.opponentResult === 'win') ? `${state.opponentName || 'Opponent'} wins!!` : 'Game Over!! You Lost'}</h2>
+        {gameStatus.gameOver && !gameStatus.waitingForOpponent && <div className="game-status-panel">
+            <h2>{gameStatus.disconnected ? '🚫 Opponent Fled!' : gameStatus.tied ? '🤝 It\'s a Draw!' : gameStatus.finished ? '🎉 Victory! You Guessed It!' : (state?.mode === 'online' && gameStatus.opponentResult === 'win') ? `💀 ${state.opponentName || 'Opponent'} claimed victory...` : '💔 Better Luck Next Time...'}</h2>
             {!gameStatus.finished && <div className='solution-container'>
-              <span>Solution: </span>
+              <span>The word was: </span>
               <span className='solution'>{solution}</span>
             </div> }
-            <div className='d-flex gap-1 justify-content-center'>
-              {state?.mode !== 'online' ? <Button variant="outlined" size="medium" onClick={() => startNewGame()}>{gameStatus.finished ? 'NEW GAME' : 'TRY AGAIN'}</Button> : null}
-              <Link to={"/"}><Button variant="outlined" size="medium">Home</Button></Link>
+            <div className='action-buttons'>
+              {state?.mode !== 'online' ? <Button variant="outlined" size="medium" onClick={() => startNewGame()}>{gameStatus.finished ? 'PLAY AGAIN' : 'TRY AGAIN'}</Button> : null}
+              <Link to={"/"}><Button variant="contained" color="primary" size="medium">BACK TO HOME</Button></Link>
             </div>
           </div>}
       </div>
