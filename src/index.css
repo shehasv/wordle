@@ -14,10 +14,12 @@ body {
   padding: 0;
   display: flex;
   place-items: center;
-  height: 100svh;
+  min-height: 100svh;
   width: 100svw;
   align-items: center;
   justify-content: center;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .d-flex{

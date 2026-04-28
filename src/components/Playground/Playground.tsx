@@ -27,7 +27,8 @@ const Playground = () => {
   const [gameStatus, setIsGameStatus] = useState({
     finished: false,
     gameOver: false,
-    tied: false
+    tied: false,
+    disconnected: false
   });
   const [wordsList, setWords] = useState<string[]>([]);
   const [solution, setSolution] = useState('');
@@ -69,14 +70,24 @@ const Playground = () => {
         setIsGameStatus({
           finished: false,
           gameOver: true,
-          tied: false
+          tied: false,
+          disconnected: false
         });
       });
       socket.on('matchTied', () => {
         setIsGameStatus({
           finished: false,
           gameOver: true,
-          tied: true
+          tied: true,
+          disconnected: false
+        });
+      });
+      socket.on('playerDisconnected', () => {
+        setIsGameStatus({
+          finished: false,
+          gameOver: true,
+          tied: false,
+          disconnected: true
         });
       });
     }
@@ -84,6 +95,7 @@ const Playground = () => {
     return () => {
       socket.off('opponentWon');
       socket.off('matchTied');
+      socket.off('playerDisconnected');
     }
   }, [state?.mode]);
 
@@ -104,7 +116,8 @@ const Playground = () => {
     setIsGameStatus({
       finished: false,
       gameOver: false,
-      tied: false
+      tied: false,
+      disconnected: false
     });
     updateSolution();
   }
@@ -146,7 +159,8 @@ const Playground = () => {
           setIsGameStatus({
             finished: true,
             gameOver: true,
-            tied: false
+            tied: false,
+            disconnected: false
           });
           if (state?.mode === 'online') {
             socket.emit('playerWon', { roomName: state.roomId });
@@ -209,6 +223,11 @@ const Playground = () => {
   return (
     <>
     <div className='playground-main-container'>
+      {state?.mode === 'online' && state?.opponentName && (
+        <div className="opponent-info" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+          Playing against: {state.opponentName}
+        </div>
+      )}
             <div className='grid-container'>
         {solution && wordInputs.map((row: Array<string>, rowIndex: number) => (
           <div className="word-row" key={rowIndex}>
@@ -221,7 +240,7 @@ const Playground = () => {
           </div>
         ))}
         {gameStatus.gameOver && <div>
-            <h2>{gameStatus.tied ? 'Match Tied!!' : gameStatus.finished ? 'Impressive!! You Won' : 'Game Over!! You Lost'}</h2>
+            <h2>{gameStatus.disconnected ? 'Opponent Disconnected' : gameStatus.tied ? 'Match Tied!!' : gameStatus.finished ? 'Impressive!! You Won' : 'Game Over!! You Lost'}</h2>
             {!gameStatus.finished && <div className='solution-container'>
               <span>Solution: </span>
               <span className='solution'>{solution}</span>
