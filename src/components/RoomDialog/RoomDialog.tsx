@@ -37,7 +37,8 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
                 state: {
                     solution: data.solution,
                     roomId: data.roomName,
-                    mode: 'online'
+                    mode: 'online',
+                    gameLevel: 'easy'
                 }
             })
         }))

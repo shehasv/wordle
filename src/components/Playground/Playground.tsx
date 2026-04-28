@@ -138,7 +138,7 @@ const Playground = () => {
     
     if (wordInputs[numberOfTries].every((item: string) => item)) {
       const input = wordInputs[numberOfTries].join('')
-      if(!wordsList.includes(input) && state.gameLevel != 'easy'){
+      if(!wordsList.includes(input.toLowerCase()) && state.gameLevel != 'easy'){
         setShowSnackbar(true)
       } else{
         validateWord();
