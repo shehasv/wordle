@@ -1,10 +1,10 @@
 import './Home.css';
 import Button from '@mui/material/Button';
 import {  useState } from 'react';
-import {Person, People} from '@mui/icons-material';
+import {Person, People, HelpOutline} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import RoomDialog from '../RoomDialog/RoomDialog';
-
+import HowToPlayDialog from '../HowToPlayDialog/HowToPlayDialog';
 
 
 
@@ -12,6 +12,7 @@ function Home() {
     const navigate = useNavigate();
     const [isGameStarted,setIsGameStarted] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
+    const [openHowToPlay, setOpenHowToPlay] = useState(false);
     const [gameLevel] = useState('easy')
     
 
@@ -38,7 +39,11 @@ function Home() {
                 <Button variant="outlined" endIcon={<People />} size="medium" onClick={() => startGame('online')}>Multi Player</Button>
             </div>
             }
+            <div style={{ marginTop: '2rem' }}>
+                {!isGameStarted && <Button variant="text" startIcon={<HelpOutline />} onClick={() => setOpenHowToPlay(true)}>How To Play</Button>}
+            </div>
             <RoomDialog openDialog={openDialog} setOpenDialog={setOpenDialog} />
+            <HowToPlayDialog openDialog={openHowToPlay} setOpenDialog={setOpenHowToPlay} />
         </div>
     </div>
 }
