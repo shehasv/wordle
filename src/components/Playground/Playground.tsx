@@ -84,6 +84,7 @@ const Playground = () => {
       socket.on('opponentWon', () => {
         setIsGameStatus((prev) => ({
           ...prev,
+          gameOver: true,
           opponentResult: 'win',
           tied: prev.gameOver && prev.finished,
           waitingForOpponent: false
@@ -188,7 +189,7 @@ const Playground = () => {
             ...currentValue,
             finished: true,
             gameOver: true,
-            waitingForOpponent: state?.mode === 'online' && !currentValue.opponentResult,
+            waitingForOpponent: false,
             tied: currentValue.opponentResult === 'win'
           }));
         }
