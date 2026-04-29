@@ -76,7 +76,8 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
                     roomId: data.roomName,
                     mode: 'online',
                     gameLevel: 'easy',
-                    opponentName: oppName
+                    opponentName: oppName,
+                    playerName: playerName
                 }
             })
         }))

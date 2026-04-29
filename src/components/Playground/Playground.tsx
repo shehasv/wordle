@@ -41,13 +41,13 @@ const Playground = () => {
     tied: false,
     disconnected: false,
     waitingForOpponent: false,
-    opponentResult: null as string | null
+    opponentResult: null as string | null,
+    opponentReconnecting: false
   });
   const [wordsList, setWords] = useState<string[]>([]);
   const [solution, setSolution] = useState('');
-  const [showSnackbar, setShowSnackbar] = useState(false)
-
-  useEffect(() => {
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [rematchStatus, setRematchStatus] = useState<'idle' | 'requesting' | 'requested' | 'declined'>('idle');  useEffect(() => {
     fetchWords();
   }, []);
 
@@ -67,6 +67,7 @@ const Playground = () => {
         socket.emit('playerFailed', { roomName: state.roomId });
       }
       setIsGameStatus((currentValue) => {
+        if (currentValue.finished) return currentValue;
         return {
           ...currentValue,
           gameOver: true,
@@ -77,7 +78,7 @@ const Playground = () => {
     }
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [wordInputs, numberOfTries, gameStatus.gameOver]);
+  }, [wordInputs, numberOfTries, gameStatus.gameOver, gameStatus.finished]);
 
   useEffect(() => {
     if (state?.mode === 'online') {
@@ -105,13 +106,37 @@ const Playground = () => {
           waitingForOpponent: false
         }));
       });
+      socket.on('playerDisconnectedTemporarily', () => {
+        setIsGameStatus((prev) => ({
+          ...prev,
+          opponentReconnecting: true
+        }));
+      });
+      socket.on('playerReconnected', () => {
+        setIsGameStatus((prev) => ({
+          ...prev,
+          opponentReconnecting: false
+        }));
+      });
       socket.on('playerDisconnected', () => {
         setIsGameStatus((prev) => ({
           ...prev,
           gameOver: true,
           disconnected: true,
+          opponentReconnecting: false,
           waitingForOpponent: false
         }));
+      });
+      socket.on('playAgainRequested', () => {
+        setRematchStatus('requested');
+      });
+      socket.on('playAgainAccepted', (data: any) => {
+        setRematchStatus('idle');
+        startNewGame(data.newSolution);
+      });
+      socket.on('playAgainDeclined', () => {
+        setRematchStatus('declined');
+        setTimeout(() => setRematchStatus('idle'), 3000);
       });
     }
 
@@ -119,15 +144,32 @@ const Playground = () => {
       socket.off('opponentWon');
       socket.off('opponentFailed');
       socket.off('matchTied');
+      socket.off('playerDisconnectedTemporarily');
+      socket.off('playerReconnected');
       socket.off('playerDisconnected');
+      socket.off('playAgainRequested');
+      socket.off('playAgainAccepted');
+      socket.off('playAgainDeclined');
     }
   }, [state?.mode]);
+
+  useEffect(() => {
+    const handleConnect = () => {
+      if (state?.mode === 'online' && state?.roomId && state?.playerName) {
+        socket.emit('rejoinRoom', { roomName: state.roomId, name: state.playerName });
+      }
+    };
+    socket.on('connect', handleConnect);
+    return () => {
+      socket.off('connect', handleConnect);
+    };
+  }, [state]);
 
   const fetchWords = () => {
     setWords(words);
   };
 
-  const startNewGame = () => {
+  const startNewGame = (newSolution?: string) => {
     setNumberOfTries(0);
     setWordInputs(Array(6).fill(null).map(() => Array(5).fill('')));
     wordInputs.forEach((word,rowInd) =>{
@@ -137,15 +179,20 @@ const Playground = () => {
         elem?.classList.add('word-letter');
       })
     })
-    setIsGameStatus({
+    setIsGameStatus(prev => ({
+      ...prev,
       finished: false,
       gameOver: false,
       tied: false,
       disconnected: false,
       waitingForOpponent: false,
       opponentResult: null
-    });
-    updateSolution();
+    }));
+    if (newSolution) {
+      setSolution(newSolution);
+    } else {
+      updateSolution();
+    }
   }
 
   const updateSolution = () => {
@@ -153,6 +200,21 @@ const Playground = () => {
       wordsList[Math.floor(Math.random() * (wordsList.length - 0 + 1) + 0)]?.toUpperCase()
     );
   }
+
+  const requestRematch = () => {
+    setRematchStatus('requesting');
+    const newSolution = wordsList[Math.floor(Math.random() * (wordsList.length - 0 + 1) + 0)]?.toUpperCase();
+    socket.emit('requestPlayAgain', { roomName: state.roomId, newSolution });
+  };
+
+  const acceptRematch = () => {
+    socket.emit('acceptPlayAgain', { roomName: state.roomId });
+  };
+
+  const declineRematch = () => {
+    setRematchStatus('idle');
+    socket.emit('declinePlayAgain', { roomName: state.roomId });
+  };
 
   const updateCell = (rowIndex: number, colIndex: number, newValue: string) => {
     setWordInputs((prevWordInputs) => {
@@ -279,8 +341,28 @@ const Playground = () => {
               <span className='solution'>{solution}</span>
             </div> }
             <div className='action-buttons'>
-              {state?.mode !== 'online' ? <Button variant="outlined" size="medium" onClick={() => startNewGame()}>{gameStatus.finished ? 'PLAY AGAIN' : 'TRY AGAIN'}</Button> : null}
+              {state?.mode !== 'online' ? (
+                <Button variant="outlined" size="medium" onClick={() => startNewGame()}>{gameStatus.finished ? 'PLAY AGAIN' : 'TRY AGAIN'}</Button>
+              ) : (
+                !gameStatus.disconnected ? (
+                  rematchStatus === 'requesting' ? (
+                    <Button variant="outlined" size="medium" disabled>WAITING...</Button>
+                  ) : (
+                    <Button variant="outlined" size="medium" onClick={requestRematch}>PLAY AGAIN</Button>
+                  )
+                ) : null
+              )}
               <Link to={"/"}><Button variant="contained" color="primary" size="medium">BACK TO HOME</Button></Link>
+            </div>
+          </div>
+        </div>}
+        {rematchStatus === 'requested' && <div className="game-over-overlay" style={{ zIndex: 100 }}>
+          <div className="game-status-panel">
+            <h2>Rematch Request!</h2>
+            <p>Your opponent wants to play again.</p>
+            <div className='action-buttons' style={{ marginTop: '20px' }}>
+              <Button variant="contained" color="success" onClick={acceptRematch}>ACCEPT</Button>
+              <Button variant="outlined" color="error" onClick={declineRematch}>DECLINE</Button>
             </div>
           </div>
         </div>}
@@ -301,6 +383,23 @@ const Playground = () => {
         variant="filled"
       >
         Oops! Guess a proper word to keep the game going.
+      </Alert>
+    </Snackbar>
+
+    <Snackbar open={gameStatus.opponentReconnecting}
+    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+      <Alert severity="info" variant="filled">
+        Opponent disconnected, waiting for them to return...
+      </Alert>
+    </Snackbar>
+
+    <Snackbar open={rematchStatus === 'declined'} autoHideDuration={3000}
+    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+    onClose={() => {
+      setRematchStatus('idle')
+    }}>
+      <Alert severity="error" variant="filled">
+        Opponent declined the rematch.
       </Alert>
     </Snackbar>
     </div>
