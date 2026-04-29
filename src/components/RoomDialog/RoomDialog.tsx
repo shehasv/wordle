@@ -4,6 +4,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import './RoomDialog.css'
 import { useEffect, useState } from 'react';
 import { socket } from '../../socket';
@@ -15,6 +19,8 @@ import { generateRoomId } from '../../helper/generateRoomId';
 
 
 const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialog:any}) => {
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const navigate = useNavigate();
     const [joinRoomId, setJoinRoomId] = useState('');
     const [playerName, setPlayerName] = useState('Player'+ Math.floor(Math.random() * (1000 - 1 + 1) + 1));
@@ -24,6 +30,7 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
         solution: ''
     })
     const [copied, setCopied] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
 
     useEffect(() => {
         const handleConnect = () => {
@@ -38,14 +45,14 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
         };
         socket.on('connect', handleConnect);
 
-        socket.on('invalidRoom',((data) => {
-            console.log(data)
+        socket.on('invalidRoom',(() => {
+            setSnackbarMessage('Invalid room')
         }))
         socket.on('roomFull',(() => {
-            console.log('Room is full')
+            setSnackbarMessage('Room is full')
         }))
         socket.on('validRoom',((data: any) => {
-            console.log('validRoom received', data)
+            // console.log('validRoom received', data)
             
             let oppName = 'Opponent';
             if (data.players && Array.isArray(data.players)) {
@@ -136,6 +143,7 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
 
     return <div>
         <Dialog
+        fullScreen={fullScreen}
         open={openDialog}
         onClose={()=>{handleClose()}}
         disableEscapeKeyDown={true}
@@ -186,6 +194,13 @@ const RoomDialog = ({openDialog, setOpenDialog}:{openDialog:boolean,setOpenDialo
         <Button variant="outlined" size="small" onClick={() => handleClose()}>Close</Button>
         </DialogActions>
       </Dialog>
+      <Snackbar open={!!snackbarMessage} autoHideDuration={3000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        onClose={() => setSnackbarMessage(null)}>
+        <Alert severity="warning" variant="filled" onClose={() => setSnackbarMessage(null)}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
 }
 

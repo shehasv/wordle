@@ -265,10 +265,13 @@ const Playground = () => {
             ))}
           </div>
         ))}
-        {gameStatus.gameOver && gameStatus.waitingForOpponent && <div className="game-status-message">
+        {gameStatus.gameOver && gameStatus.waitingForOpponent && <div className="game-over-overlay">
+          <div className="game-status-message">
             <h2>👀 {state.opponentName || 'Opponent'} is still guessing...</h2>
+          </div>
         </div>}
-        {gameStatus.gameOver && !gameStatus.waitingForOpponent && <div className="game-status-panel">
+        {gameStatus.gameOver && !gameStatus.waitingForOpponent && <div className="game-over-overlay">
+          <div className="game-status-panel">
             <h2>{gameStatus.disconnected ? '🚫 Opponent Fled!' : gameStatus.tied ? '🤝 It\'s a Draw!' : gameStatus.finished ? '🎉 Victory! You Guessed It!' : (state?.mode === 'online' && gameStatus.opponentResult === 'win') ? `💀 ${state.opponentName || 'Opponent'} claimed victory...` : '💔 Better Luck Next Time...'}</h2>
             {!gameStatus.finished && <div className='solution-container'>
               <span>The word was: </span>
@@ -278,7 +281,8 @@ const Playground = () => {
               {state?.mode !== 'online' ? <Button variant="outlined" size="medium" onClick={() => startNewGame()}>{gameStatus.finished ? 'PLAY AGAIN' : 'TRY AGAIN'}</Button> : null}
               <Link to={"/"}><Button variant="contained" color="primary" size="medium">BACK TO HOME</Button></Link>
             </div>
-          </div>}
+          </div>
+        </div>}
       </div>
 
       {!gameStatus.gameOver && <div className='keyboard-container'>
